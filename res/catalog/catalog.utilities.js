@@ -1,11 +1,12 @@
 const cheerio = require('cheerio');
 const puppeteer = require('puppeteer');
+const fs = require('fs');
 
 const { generateFilterFromRef } = require("../../utils/url");
 
 const getAllCatalogs = async (searchRef = 1) => {
-  const browser = await puppeteer.launch({ headless: true });
-  const page = await browser.newPage();
+  let browser = await puppeteer.launch({ headless: true });
+  let page = await browser.newPage();
   const url = generateFilterFromRef(searchRef);
   await page.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36");
   
@@ -22,8 +23,34 @@ const getAllCatalogs = async (searchRef = 1) => {
   let catalogs = [];
   // get all div with class feed-grid__item
   catalogs = await scrapeCatalog(feeds, page, $);
-  console.log('tes', catalogs);
 
+  await browser.close();
+  browser = await puppeteer.launch({ headless: true });
+  page = await browser.newPage();
+  await page.setDefaultNavigationTimeout(0); 
+  await page.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36");
+  for (const [i, catalog] of catalogs.entries()) {
+    // get detail info
+    // await page.waitForNavigation({ waitUntil: 'networkidle2' });
+    await page.goto(catalog.link);
+    console.log(catalog.link);
+    let detailContent = await page.content();
+    const $detail = cheerio.load(detailContent);
+    fs.writeFileSync('./output/detail.html', detailContent);
+    const detailInfo = $detail('.details-list.details-list--main-info');
+
+    // get condition of product
+    catalogs[i].condition = detailInfo.find('div[itemprop=itemCondition]').text().replace(/(\r\n|\n|\r)/gm, '').trim();
+    // get product country
+    detailInfo.find('.details-list__item-value').each((index, el) => {
+      if (index === 4) catalogs[i].country = $detail(el).text().replace(/(\r\n|\n|\r)/gm, '').trim();
+    });
+    // get vendor rating
+    const vendorInfo = $detail('.Rating_rating__rOUZx.Rating_small__EC52L');
+    catalogs[i].rating = vendorInfo.attr('aria-label');
+
+    await page.goBack();
+  }
   await browser.close();
   return catalogs;
 }
@@ -42,6 +69,9 @@ const scrapeCatalog = (feeds, page, $) => {
       
       // get brand of product
       catalog.brand = $(this).find('.ItemBox_details__1c8wh').find('h4').text();
+
+      // get vendor of product
+      catalog.vendor_name = $(this).find('.ItemBox_name__1tHO2').find('h4').text();
   
       // get image of product
       $(this).find('.ItemBox_image__3BPYe').each(async function() {
