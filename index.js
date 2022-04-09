@@ -1,10 +1,23 @@
 require('dotenv').config();
 const cheerio = require('cheerio');
 const puppeteer = require('puppeteer');
+const TelegramBot = require('node-telegram-bot-api');
 // const fs = require('fs');
 
 const { generateFilterFromRef } = require('./utils/url');
+const { CronJob } = require('cron');
 
+// bot setup
+const token = process.env.TOKEN;
+const bot = new TelegramBot(token, { polling: true });
+bot.on('message', msg => {
+  const { id } = msg.chat;
+  console.log('id', id);
+});
+bot.on('polling_error', console.log);
+console.log('Bot server started');
+
+// scraping functionaliy
 const getAllCatalogs = async (searchRef = 1) => {
   const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
@@ -46,4 +59,8 @@ const getAllCatalogs = async (searchRef = 1) => {
   await browser.close();
 }
 
-getAllCatalogs(1);
+// setup cron
+const job = new CronJob('10 * * * *', async () => {
+  getAllCatalogs(1);
+}, null, false, 'Asia/Makassar');
+job.start();
