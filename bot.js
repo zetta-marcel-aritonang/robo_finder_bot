@@ -4,9 +4,10 @@ const { getAllCatalogs } = require('./res/catalog/catalog.utilities');
 const sendSearchRef1 = async (id) => {
   const catalogs = await getAllCatalogs(1);
   
-  for (const { price, size, brand, img, link, vendor_name, condition, country, rating } of catalogs) {
+  for (const { price, size, brand, img, link, vendor_name, condition, country, rating, description } of catalogs) {
+    let stars = rating?.split(' ')[2];
     bot.sendPhoto(id, img, { 
-      caption: `${price}\n${size}\n${brand}\n${condition}\n${link}\n${vendor_name}\n${rating}\n${country}` 
+      caption: `${price}\n${size}\n${brand}\n${condition}\n${link}\n${vendor_name}\n${stars}⭐\n${country}\n${description}` 
     });
   }
 }

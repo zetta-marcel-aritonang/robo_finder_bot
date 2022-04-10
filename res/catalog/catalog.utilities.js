@@ -1,6 +1,6 @@
 const cheerio = require('cheerio');
 const puppeteer = require('puppeteer');
-const fs = require('fs');
+// const fs = require('fs');
 
 const { generateFilterFromRef } = require("../../utils/url");
 
@@ -33,10 +33,10 @@ const getAllCatalogs = async (searchRef = 1) => {
     // get detail info
     // await page.waitForNavigation({ waitUntil: 'networkidle2' });
     await page.goto(catalog.link);
-    console.log(catalog.link);
+    
     let detailContent = await page.content();
     const $detail = cheerio.load(detailContent);
-    fs.writeFileSync('./output/detail.html', detailContent);
+    // fs.writeFileSync('./output/detail.html', detailContent);
     const detailInfo = $detail('.details-list.details-list--main-info');
 
     // get condition of product
@@ -45,11 +45,15 @@ const getAllCatalogs = async (searchRef = 1) => {
     detailInfo.find('.details-list__item-value').each((index, el) => {
       if (index === 4) catalogs[i].country = $detail(el).text().replace(/(\r\n|\n|\r)/gm, '').trim();
     });
+    
+    // get product description
+    const descInfo = $detail('span[class="Text_text__QBn4- Text_body__MkQC- Text_left__3s3CR Text_format__3gQYg"]');
+    catalogs[i].description = descInfo.children().text();
+    
     // get vendor rating
     const vendorInfo = $detail('.Rating_rating__rOUZx.Rating_small__EC52L');
     catalogs[i].rating = vendorInfo.attr('aria-label');
-
-    await page.goBack();
+    console.log(catalog.link);
   }
   await browser.close();
   return catalogs;
@@ -73,22 +77,11 @@ const scrapeCatalog = (feeds, page, $) => {
       // get vendor of product
       catalog.vendor_name = $(this).find('.ItemBox_name__1tHO2').find('h4').text();
   
-      // get image of product
       $(this).find('.ItemBox_image__3BPYe').each(async function() {
+        // get image of product
         catalog.img = $(this).find('img').attr('src');
         catalog.link = $(this).find('a').attr('href');
-  
-        // get detail info
-        // await page.waitForNavigation({ waitUntil: 'networkidle2' });
-        // await page.goto(catalog.link);
-        // let detailContent = await page.content();
-        // const $detail = cheerio.load(detailContent);
-        // const detailInfo = $detail('.details-list details-list--main-info');
-        // catalog.condition = detailInfo.find('div[itemprop="itemCondition"]').text();
-        // await page.goBack();
-      })
-  
-      // get more info inside the detail page
+      });
   
       catalogs.push(catalog);
     });
