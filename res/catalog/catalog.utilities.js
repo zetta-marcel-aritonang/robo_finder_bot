@@ -67,7 +67,8 @@ const getAllCatalogs = async (searchRef = 1) => {
       // get vendor rating
       const vendorInfo = $detail('.Rating_rating__rOUZx.Rating_small__EC52L');
       catalogs[i].rating = vendorInfo.attr('aria-label');
-      console.log(catalog.link);
+      let progress = (i / (catalogs.length - 1)) * 100;
+      console.log(`${progress.toFixed(2)}%`, catalog.link);
     }
     await browser.close();
   
