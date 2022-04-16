@@ -1,5 +1,6 @@
 const TelegramBot = require('node-telegram-bot-api');
 const { getAllCatalogs } = require('./res/catalog/catalog.utilities');
+const ChatModel = require('./res/chat/chat.model');
 
 const sendSearchRef1 = async (id) => {
   const catalogs = await getAllCatalogs(1);
@@ -33,6 +34,16 @@ bot.on('message', msg => {
   const { id } = msg.chat;
   console.log('id', id);
 });
+bot.onText(/\/subscribe/, async (msg) => {
+  const { id } = msg.chat;
+  const chat = await ChatModel.findOne({ id }).lean();
+  if (!chat) {
+    const newChat = await ChatModel.create(msg.chat);
+    console.log(`[${newChat._id}] Registered ${newChat.first_name} ${newChat.last_name} with id: ${id}`);
+  } else {
+    console.log(`This chat already exist with database _id: ${chat._id}`);
+  }
+})
 bot.onText(/\/getNow/, async (msg) => {
   const { id } = msg.chat;
   await sendSearchRef1(id);

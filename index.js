@@ -3,6 +3,7 @@ const { CronJob } = require('cron');
 const mongoose = require('mongoose');
 
 const { sendSearchRef1 } = require('./bot');
+const ChatModel = require('./res/chat/chat.model');
 
 // setup mongodb and mongoose
 mongoose.connect(`mongodb://${process.env.DB_HOST}/${process.env.DB_NAME}`, {
@@ -14,7 +15,7 @@ db.on('error', console.log);
 
 // setup cron
 const job = new CronJob('*/10 * * * *', async () => {
-  const chatIds = process.env.CHAT_IDS.split(',');
+  const chatIds = await ChatModel.distinct('id', { id: { $nin: [null, ''] } });
   for (const id of chatIds) {
     await sendSearchRef1(id);
   }
