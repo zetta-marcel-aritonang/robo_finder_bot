@@ -5,7 +5,7 @@ const puppeteer = require('puppeteer');
 const { generateFilterFromRef } = require("../../utils/url");
 const CatalogModel = require('./catalog.model');
 
-const getAllCatalogs = async (searchRef = 1) => {
+const getAllCatalogs = async (searchRef = 0) => {
   let browser = await puppeteer.launch({ 
     headless: true,
     args: ['--no-sandbox', '--disable-setuid-sandbox', '--single-process'],
@@ -73,7 +73,7 @@ const getAllCatalogs = async (searchRef = 1) => {
       // get vendor rating
       const vendorInfo = $detail('.Rating_rating__rOUZx.Rating_small__EC52L');
       catalogs[i].rating = vendorInfo.attr('aria-label');
-      let progress = (i / (catalogs.length - 1)) * 100;
+      let progress = ((i + 1) / (catalogs.length)) * 100;
       console.log(`${progress.toFixed(2)}%`, catalog.link);
     }
     await browser.close();
