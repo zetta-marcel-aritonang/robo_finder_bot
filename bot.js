@@ -44,7 +44,7 @@ bot.onText(/\/subscribe/, async (msg) => {
 })
 bot.onText(/\/getNow/, async (msg) => {
   const { id } = msg.chat;
-  const catalogs = await getAllCatalogs(1);
+  const catalogs = await getAllCatalogs(0);
   await sendSearchRef1(id, catalogs);
   console.log(`Succesfully sent to ${id}`);
 })

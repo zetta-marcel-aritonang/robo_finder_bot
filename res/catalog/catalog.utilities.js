@@ -5,7 +5,7 @@ const puppeteer = require('puppeteer');
 const { generateFilterFromRef } = require("../../utils/url");
 const CatalogModel = require('./catalog.model');
 
-const getAllCatalogs = async (searchRef = 1) => {
+const getAllCatalogs = async (searchRef = 0) => {
   let browser = await puppeteer.launch({ 
     headless: true,
     args: ['--no-sandbox', '--disable-setuid-sandbox', '--single-process'],

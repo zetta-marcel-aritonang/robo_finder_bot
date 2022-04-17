@@ -18,8 +18,8 @@ db.on('error', console.log);
 const job = new CronJob('*/10 * * * *', async () => {
   console.log('Cron job started');
   const chatIds = await ChatModel.distinct('id', { id: { $nin: [null, ''] } });
-  // search ref 1
-  const catalogs1 = await getAllCatalogs(1);
+  // search ref 0
+  const catalogs1 = await getAllCatalogs(0);
   for (const id of chatIds) {
     await sendSearchRef1(id, catalogs1);
   }
