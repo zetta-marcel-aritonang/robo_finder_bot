@@ -44,7 +44,8 @@ bot.onText(/\/subscribe/, async (msg) => {
 })
 bot.onText(/\/getNow/, async (msg) => {
   const { id } = msg.chat;
-  await sendSearchRef1(id);
+  const catalogs = await getAllCatalogs(1);
+  await sendSearchRef1(id, catalogs);
   console.log(`Succesfully sent to ${id}`);
 })
 bot.on('polling_error', console.log);
