@@ -2,9 +2,7 @@ const TelegramBot = require('node-telegram-bot-api');
 const { getAllCatalogs } = require('./res/catalog/catalog.utilities');
 const ChatModel = require('./res/chat/chat.model');
 
-const sendSearchRef1 = async (id) => {
-  const catalogs = await getAllCatalogs(1);
-
+const sendSearchRef1 = async (id, catalogs) => {
   if (!catalogs) {
     return;
   }
@@ -46,7 +44,8 @@ bot.onText(/\/subscribe/, async (msg) => {
 })
 bot.onText(/\/getNow/, async (msg) => {
   const { id } = msg.chat;
-  await sendSearchRef1(id);
+  const catalogs = await getAllCatalogs(1);
+  await sendSearchRef1(id, catalogs);
   console.log(`Succesfully sent to ${id}`);
 })
 bot.on('polling_error', console.log);
