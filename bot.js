@@ -2,9 +2,7 @@ const TelegramBot = require('node-telegram-bot-api');
 const { getAllCatalogs } = require('./res/catalog/catalog.utilities');
 const ChatModel = require('./res/chat/chat.model');
 
-const sendSearchRef1 = async (id) => {
-  const catalogs = await getAllCatalogs(1);
-
+const sendSearchRef1 = async (id, catalogs) => {
   if (!catalogs) {
     return;
   }
