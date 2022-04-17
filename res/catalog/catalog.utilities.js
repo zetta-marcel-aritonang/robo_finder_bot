@@ -6,7 +6,10 @@ const { generateFilterFromRef } = require("../../utils/url");
 const CatalogModel = require('./catalog.model');
 
 const getAllCatalogs = async (searchRef = 1) => {
-  let browser = await puppeteer.launch({ headless: true });
+  let browser = await puppeteer.launch({ 
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--single-process'],
+  });
   let page = await browser.newPage();
   const url = generateFilterFromRef(searchRef);
   await page.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36");
@@ -39,7 +42,10 @@ const getAllCatalogs = async (searchRef = 1) => {
   }
 
   if (catalogs && catalogs.length) {
-    browser = await puppeteer.launch({ headless: true });
+    browser = await puppeteer.launch({ 
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--single-process'],
+    });
     page = await browser.newPage();
     await page.setDefaultNavigationTimeout(0); 
     await page.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36");
