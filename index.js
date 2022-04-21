@@ -15,14 +15,14 @@ db.once('open', () => console.log('Connected to mongodb'));
 db.on('error', console.log);
 
 // setup cron
-const job = new CronJob('*/10 * * * *', async () => {
-  console.log('Cron job started');
-  const chatIds = await ChatModel.distinct('id', { id: { $nin: [null, ''] } });
-  // search ref 0
-  const catalogs1 = await getAllCatalogs(0);
-  for (const id of chatIds) {
-    await sendSearchRef1(id, catalogs1);
-  }
-  console.log('Cron job ends');
-}, null, false, 'Asia/Makassar');
-job.start();
+// const job = new CronJob('*/10 * * * *', async () => {
+//   console.log('Cron job started');
+//   const chatIds = await ChatModel.distinct('id', { id: { $nin: [null, ''] } });
+//   // search ref 0
+//   const catalogs1 = await getAllCatalogs(0);
+//   for (const id of chatIds) {
+//     await sendSearchRef1(id, catalogs1);
+//   }
+//   console.log('Cron job ends');
+// }, null, false, 'Asia/Makassar');
+// job.start();

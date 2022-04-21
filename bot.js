@@ -34,12 +34,17 @@ bot.on('message', msg => {
 });
 bot.onText(/\/subscribe/, async (msg) => {
   const { id } = msg.chat;
+  const [, ref] = msg.text.split(' ');
+  console.log(id, ref);
+  
   const chat = await ChatModel.findOne({ id }).lean();
   if (!chat) {
-    const newChat = await ChatModel.create(msg.chat);
-    console.log(`[${newChat._id}] Registered ${newChat.first_name} ${newChat.last_name} with id: ${id}`);
+    const newChat = await ChatModel.create({ ...msg.chat, search_ref: +ref });
+    console.log(`[${newChat._id}] Registered ${newChat.first_name} ${newChat.last_name} with id: ${id} searching ref: ${ref}`);
+    bot.sendMessage(id, `${newChat?.title || newChat?.first_name} subscribed for search ref ${ref}`);
   } else {
     console.log(`This chat already exist with database _id: ${chat._id}`);
+    bot.sendMessage(id, `This chat already subscribed`);
   }
 })
 bot.onText(/\/getNow/, async (msg) => {
