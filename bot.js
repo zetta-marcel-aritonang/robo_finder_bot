@@ -1,6 +1,7 @@
 const TelegramBot = require('node-telegram-bot-api');
 const { getAllCatalogs } = require('./res/catalog/catalog.utilities');
 const ChatModel = require('./res/chat/chat.model');
+const { delay } = require('./utils/common');
 
 const sendSearchRef1 = async (id, catalogs) => {
   if (!catalogs) {
@@ -23,6 +24,7 @@ const sendSearchRef1 = async (id, catalogs) => {
     catch(e) {
       console.log('this cause error', caption);
     }
+    await delay(1);
   }
 }
 

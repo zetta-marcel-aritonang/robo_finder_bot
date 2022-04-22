@@ -6,11 +6,13 @@ const { generateFilterFromRef } = require("../../utils/url");
 const CatalogModel = require('./catalog.model');
 
 const getAllCatalogs = async (searchRef = 0) => {
+  console.log('Start search', searchRef);
   let browser = await puppeteer.launch({ 
     headless: true,
     args: ['--no-sandbox', '--disable-setuid-sandbox', '--single-process'],
   });
   let page = await browser.newPage();
+  await page.setDefaultNavigationTimeout(0); 
   const url = generateFilterFromRef(searchRef);
   await page.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36");
   
@@ -80,7 +82,7 @@ const getAllCatalogs = async (searchRef = 0) => {
   
     await CatalogModel.insertMany(catalogs);
   }
-
+  console.log('Stop search', searchRef);
   return catalogs;
 }
 
