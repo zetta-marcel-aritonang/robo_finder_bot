@@ -1,6 +1,7 @@
 const TelegramBot = require('node-telegram-bot-api');
 const { getAllCatalogs } = require('./res/catalog/catalog.utilities');
 const ChatModel = require('./res/chat/chat.model');
+const { delay } = require('./utils/common');
 
 const sendSearchRef1 = async (id, catalogs) => {
   if (!catalogs) {
@@ -23,6 +24,7 @@ const sendSearchRef1 = async (id, catalogs) => {
     catch(e) {
       console.log('this cause error', caption);
     }
+    await delay(1);
   }
 }
 
@@ -34,12 +36,17 @@ bot.on('message', msg => {
 });
 bot.onText(/\/subscribe/, async (msg) => {
   const { id } = msg.chat;
+  const [, ref] = msg.text.split(' ');
+  console.log(id, ref);
+  
   const chat = await ChatModel.findOne({ id }).lean();
   if (!chat) {
-    const newChat = await ChatModel.create(msg.chat);
-    console.log(`[${newChat._id}] Registered ${newChat.first_name} ${newChat.last_name} with id: ${id}`);
+    const newChat = await ChatModel.create({ ...msg.chat, search_ref: +ref });
+    console.log(`[${newChat._id}] Registered ${newChat.first_name} ${newChat.last_name} with id: ${id} searching ref: ${ref}`);
+    bot.sendMessage(id, `${newChat?.title || newChat?.first_name} subscribed for search ref ${ref}`);
   } else {
     console.log(`This chat already exist with database _id: ${chat._id}`);
+    bot.sendMessage(id, `This chat already subscribed`);
   }
 })
 bot.onText(/\/getNow/, async (msg) => {
