@@ -1,5 +1,6 @@
 const cheerio = require('cheerio');
 const puppeteer = require('puppeteer');
+const moment = require('moment');
 // const fs = require('fs');
 
 const { generateFilterFromRef } = require("../../utils/url");
@@ -7,9 +8,47 @@ const CatalogModel = require('./catalog.model');
 
 const getAllCatalogs = async (searchRef = 0) => {
   console.log('Start search', searchRef);
+  const minArgs = [
+    '--autoplay-policy=user-gesture-required',
+    '--disable-background-networking',
+    '--disable-background-timer-throttling',
+    '--disable-backgrounding-occluded-windows',
+    '--disable-breakpad',
+    '--disable-client-side-phishing-detection',
+    '--disable-component-update',
+    '--disable-default-apps',
+    '--disable-dev-shm-usage',
+    '--disable-domain-reliability',
+    '--disable-extensions',
+    '--disable-features=AudioServiceOutOfProcess',
+    '--disable-hang-monitor',
+    '--disable-ipc-flooding-protection',
+    '--disable-notifications',
+    '--disable-offer-store-unmasked-wallet-cards',
+    '--disable-popup-blocking',
+    '--disable-print-preview',
+    '--disable-prompt-on-repost',
+    '--disable-renderer-backgrounding',
+    '--disable-setuid-sandbox',
+    '--disable-speech-api',
+    '--disable-sync',
+    '--hide-scrollbars',
+    '--ignore-gpu-blacklist',
+    '--metrics-recording-only',
+    '--mute-audio',
+    '--no-default-browser-check',
+    '--no-first-run',
+    '--no-pings',
+    '--no-sandbox',
+    '--no-zygote',
+    '--password-store=basic',
+    '--use-gl=swiftshader',
+    '--use-mock-keychain',
+    '--single-process'
+  ];
   let browser = await puppeteer.launch({ 
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox', '--single-process'],
+    args: minArgs
   });
   let page = await browser.newPage();
   await page.setDefaultNavigationTimeout(0); 
@@ -23,6 +62,10 @@ const getAllCatalogs = async (searchRef = 0) => {
   } 
   catch (e) {
     console.log('e', e);
+    page.screenshot({ 
+      path: `./output/error-${searchRef}-${moment.utc().format('DD-MM-YYYY HH:mm')}.png`,
+      fullPage: true
+    });
   }
   const $ = cheerio.load(content);
   let feeds = $('.feed-grid'); // takes the div of class feed-grid
@@ -46,7 +89,7 @@ const getAllCatalogs = async (searchRef = 0) => {
   if (catalogs && catalogs.length) {
     browser = await puppeteer.launch({ 
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox', '--single-process'],
+      args: minArgs,
     });
     page = await browser.newPage();
     await page.setDefaultNavigationTimeout(0); 
@@ -74,7 +117,8 @@ const getAllCatalogs = async (searchRef = 0) => {
       
       // get vendor rating
       const vendorInfo = $detail('.Rating_rating__rOUZx.Rating_small__EC52L');
-      catalogs[i].rating = vendorInfo.attr('aria-label');
+      catalogs[i].rating = vendorInfo.attr('aria-label') || $detail('.Text_text__QBn4-.Text_caption__3BXy6.Text_left__3s3CR');
+      catalogs[i].vendor_name = catalog.vendor_name || $detail('span[class="Text_text__QBn4- Text_caption__3BXy6 Text_left__3s3CR"]').text();
       let progress = ((i + 1) / (catalogs.length)) * 100;
       console.log(`${progress.toFixed(2)}%`, catalog.link);
     }
