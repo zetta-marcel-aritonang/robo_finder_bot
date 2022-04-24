@@ -5,8 +5,9 @@ const moment = require('moment');
 
 const { generateFilterFromRef } = require("../../utils/url");
 const CatalogModel = require('./catalog.model');
+const { sendOnce } = require('../../bot');
 
-const getAllCatalogs = async (searchRef = 0) => {
+const getAllCatalogs = async (searchRef = 0, id) => {
   console.log('Start search', searchRef);
   const minArgs = [
     '--autoplay-policy=user-gesture-required',
@@ -117,10 +118,11 @@ const getAllCatalogs = async (searchRef = 0) => {
       
       // get vendor rating
       const vendorInfo = $detail('.Rating_rating__rOUZx.Rating_small__EC52L');
-      catalogs[i].rating = vendorInfo.attr('aria-label') || $detail('.Text_text__QBn4-.Text_caption__3BXy6.Text_left__3s3CR');
+      catalogs[i].rating = vendorInfo.attr('aria-label') || $detail('.Text_text__QBn4-.Text_caption__3BXy6.Text_left__3s3CR').text();
       catalogs[i].vendor_name = catalog.vendor_name || $detail('span[class="Text_text__QBn4- Text_caption__3BXy6 Text_left__3s3CR"]').text();
       let progress = ((i + 1) / (catalogs.length)) * 100;
       console.log(`${progress.toFixed(2)}%`, catalog.link);
+      await sendOnce(id, catalog);
     }
     await browser.close();
   

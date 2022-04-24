@@ -1,5 +1,5 @@
 const TelegramBot = require('node-telegram-bot-api');
-const { getAllCatalogs } = require('./res/catalog/catalog.utilities');
+// const { getAllCatalogs } = require('./res/catalog/catalog.utilities');
 const ChatModel = require('./res/chat/chat.model');
 const { delay } = require('./utils/common');
 
@@ -28,6 +28,24 @@ const sendSearchRef1 = async (id, catalogs) => {
   }
 }
 
+const sendOnce = async (id, { price, size, brand, img, link, vendor_name, condition, country, rating, description }) => {
+  let stars = typeof rating === 'string' ? rating?.split(' ')[2] : rating;
+  let firstHalf = `${price}\n${size}\n${brand}\n${condition}\n`;
+  let secondHalf = `\n${vendor_name}\n${stars || rating}⭐\n${country}\n${description}`;
+  let hyperLink = `<a href="${link}">&lt;click&gt;</a>`;
+  let caption = `${parseHTML(firstHalf)}${hyperLink}${parseHTML(secondHalf)}`;
+  caption = caption.length > 1000 ? `${caption.substring(0, 1000)}...` : caption;
+  try {
+    bot.sendPhoto(id, img, { 
+      caption,
+      parse_mode: 'HTML',
+    });
+  } 
+  catch(e) {
+    console.log('this cause error', caption);
+  }
+}
+
 const token = process.env.TOKEN;
 const bot = new TelegramBot(token, { polling: true });
 bot.on('message', msg => {
@@ -49,12 +67,12 @@ bot.onText(/\/subscribe/, async (msg) => {
     bot.sendMessage(id, `This chat already subscribed`);
   }
 })
-bot.onText(/\/getNow/, async (msg) => {
-  const { id } = msg.chat;
-  const catalogs = await getAllCatalogs(0);
-  await sendSearchRef1(id, catalogs);
-  console.log(`Succesfully sent to ${id}`);
-})
+// bot.onText(/\/getNow/, async (msg) => {
+//   const { id } = msg.chat;
+//   const catalogs = await getAllCatalogs(0);
+//   await sendSearchRef1(id, catalogs);
+//   console.log(`Succesfully sent to ${id}`);
+// })
 bot.on('polling_error', console.log);
 console.log('Bot server started');
 
@@ -90,5 +108,6 @@ const parseHTML = (content = '') => {
 
 module.exports = {
   sendSearchRef1,
+  sendOnce,
   bot
 }
