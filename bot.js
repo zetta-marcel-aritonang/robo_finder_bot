@@ -31,7 +31,7 @@ const sendSearchRef1 = async (id, catalogs) => {
 const sendOnce = async (id, { price, size, brand, img, link, vendor_name, condition, country, rating, description }) => {
   let stars = typeof rating === 'string' ? rating?.split(' ')[2] : rating;
   let firstHalf = `${price}\n${size}\n${brand}\n${condition}\n`;
-  let secondHalf = `\n${vendor_name}\n${stars || rating}⭐\n${country}\n${description}`;
+  let secondHalf = `\n${vendor_name}\n${stars + '⭐' || 'Pas encore d\'évaluation'}\n${country}\n${description}`;
   let hyperLink = `<a href="${link}">&lt;click&gt;</a>`;
   let caption = `${parseHTML(firstHalf)}${hyperLink}${parseHTML(secondHalf)}`;
   caption = caption.length > 1000 ? `${caption.substring(0, 1000)}...` : caption;
